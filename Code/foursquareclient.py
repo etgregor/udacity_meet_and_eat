@@ -47,12 +47,12 @@ class FoursquareClient(object):
 		
 		return firstPhoto
 
-	def getVenueInfo(self, mealType, lat, lng):
+	def getVenues(self, mealType, lat, lng, limit = 1):
 		authParam = self.getParamAuth()
 		versionParam = "&v=20130815"
 		locationParam = "&ll=%s,%s" % (lat, lng) 
 		queryParam = "&query=%s" % (mealType)
-		limpitParam = "&limit=1"
+		limpitParam = "&limit=%s" % (limit)
 
 		url = ('https://api.foursquare.com/v2/venues/search?%s%s%s%s%s'% (authParam, versionParam, locationParam, queryParam,limpitParam))
 		
@@ -60,18 +60,23 @@ class FoursquareClient(object):
 		response,content = h.request(url, "GET")
 		jsonResult = json.loads(content)
 
-		firstVenue = jsonResult['response']['venues'][0]
-		return firstVenue
+		venues = jsonResult['response']['venues']
 
-	def findARestaurantByLocation(self, mealType, latitude, longitude):
-		""" Encuentra un restaurant por la coordenadas geográficas"""
-		venue = self.getVenueInfo(mealType = mealType, lat = latitude, lng = longitude)
+		return venues
+
+
+	def completeRestaurantInfo(self, venue):
 		if venue is None:
 			return None
 
+		venueId = ""
+		name = ""
+		photoUri = ""
+		photoPrefix = ""
+		photoSufix = ""
+
 		venueId = venue['id']
 		name = venue['name']
-		
 		firstPhoto = self.getFistrVenuePhotoInfo(venueId=venueId)
 
 		if firstPhoto is not None:
@@ -84,17 +89,28 @@ class FoursquareClient(object):
 		for addres_part in full_address:
 			address += addres_part + " "
 		
+		latitude = venue['location']['lat']
+		longitude = venue['location']['lng']
+
 		restaurant = Restaurant(name = name, address = address, photo = photoUri, photoPrefix = photoPrefix, photoSufix = photoSufix, latitude = latitude, longitude =longitude) 
 		return restaurant
 
-	def findARestaurantByAddress(self, mealType, address):
-		""" Encuentra un re """
-		venueId = ""
-		name = ""
-		photoUri = ""
-		photoPrefix = ""
-		photoSufix = ""
 
+	def findARestaurantsByLocation(self, mealType, latitude, longitude, limit):
+		""" Encuentra un restaurant por la coordenadas geográficas"""
+		venues = self.getVenues(mealType = mealType, lat = latitude, lng = longitude, limit = limit)
+		
+		restaurants = []
+
+		for venue in venues:
+			restaurant = self.completeRestaurantInfo(venue)
+			if restaurant is not None:
+				restaurants.append(restaurant)
+
+		return restaurants
+
+	def findARestaurantsByAddress(self, mealType, address, limit):
+		""" Encuentra un re """
 		geocoding = GoogleClient()
 		location = geocoding.getLocationFromAddress(address=address)
 		if location is None:
@@ -102,8 +118,8 @@ class FoursquareClient(object):
 
 		lat = location[0]
 		lng = location[1]
-		restaurant = self.findARestaurantByLocation(mealType = mealType,latitude=lat, longitude=lng)
-		return restaurant
+		restaurants = self.findARestaurantsByLocation(mealType, lat, lng, limit)
+		return restaurants
 
 	"""Cliente de foursquare"""
 	def __init__(self):

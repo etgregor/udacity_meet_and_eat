@@ -11,6 +11,15 @@ from foursquareclient import FoursquareClient
 # 	if location is None:
 # 		raise Exception('Direcció no encontrada: %s' % searchAddress)
 # 	print location
+
+# 	forsquare = FoursquareClient()
+# 	venues =  forsquare.findARestaurantsByLocation('Pizza', location[0], location[1], 3)
+# 	print len(venues)
+# 	if venues is None:
+# 		raise Exception('Lugar no encontrado: %s' % searchAddress)
+# 	#jsonify(restaurant = restaurant.serialize)
+# 	#print json.dumps(venues, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
 # except Exception as err:
 # 	print "Test 1 FAILED: No se puede geocodificar la dirección"
 # 	print err.args
@@ -20,11 +29,11 @@ from foursquareclient import FoursquareClient
 #TEST 2 Encontrar lugar en foursaquare
 try:
 	forsquare = FoursquareClient()
-	venue =  forsquare.findARestaurantByAddress(mealType='Pizza', address='Mexico City')
-	if venue is None:
-		raise Exception('Direcció no encontrada: %s' % searchAddress)
+	venues =  forsquare.findARestaurantsByAddress(mealType='Pizza', address='Mexico City', limit = 2)
+	if venues is None:
+		raise Exception('Lugar no encontrado: %s' % searchAddress)
 	#jsonify(restaurant = restaurant.serialize)
-	print json.dumps(venue, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+	print json.dumps(venues, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 except Exception as err:
 	print "Test 2 FAILED: No se pudo encontrar el lugar"
 	print err.args
