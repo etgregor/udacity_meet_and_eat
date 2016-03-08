@@ -38,5 +38,6 @@ class GoogleClient(object):
 
 
 	def __init__(self):
+		#Lee el archivo config.json para obtener el apikey de google
 		config  = json.loads(open('config.json', 'r').read())
 		apikey = config['Google']['GeocodeKey']

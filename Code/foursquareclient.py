@@ -10,17 +10,24 @@ import sys
 import codecs
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 sys.stderr = codecs.getwriter('utf8')(sys.stderr)
+
 from googleclient import GoogleClient
+from foundvenue import FundVenue
 
 class FoursquareClient(object):
 	""" Cliente para forsquare """
 	apiClientId = ''
 	apiClientSecret = ''
+	photo_width = 300
+	photo_heigth = 300
 
+	def getParamAuth(self):
+		authParam = "&client_id=%s&client_secret=%s" % (self.apiClientId, self.apiClientSecret)
+		return authParam
 
 	def getAllVenuePhotosInfo(self, venueId):
 		#https://api.foursquare.com/v2/venues/43695300f964a5208c291fe3/photos?oauth_token=BM35PLFN2DFOZNMMO3HFL0UC33ZGYWTYWSEDVUJLPOEIR5MQ&v=20160218&limit=2
-		authParam = "&client_id=%s&client_secret=%s" % (self.apiClientId, self.apiClientSecret)
+		authParam = self.getParamAuth()
 		photosUri = ('https://api.foursquare.com/v2/venues/%s/photos?%s&v=20160218&limit=1'% (venueId, authParam))
 		h = httplib2.Http()
 		response,content = h.request(photosUri, "GET")
@@ -47,15 +54,10 @@ class FoursquareClient(object):
 		if firstPhoto is not None:
 			photoUri = "%s%sx%s%s" % (firstPhoto['prefix'],wsize, hsize ,firstPhoto['suffix'])
 		
-		return photoUr
+		return photoUri
 
-	def getVenueInfo(self, mealType, location):
-		
-		lat = location[0]
-		lng = location[1]
-
-		authParam = "client_id=%s&client_secret=%s" % (self.apiClientId, self.apiClientSecret)
-		
+	def getVenueInfo(self, mealType, lat, lng):
+		authParam = self.getParamAuth()
 		versionParam = "&v=20130815"
 		locationParam = "&ll=%s,%s" % (lat, lng) 
 		queryParam = "&query=%s" % (mealType)
@@ -71,31 +73,38 @@ class FoursquareClient(object):
 		return firstVenue
 
 
-	def findARestaurant(self, mealType, address):
-		# buscar direccion en google
-		location = self.getAddressLocation(address)
-		
+	def findAVenue(self, mealType, address):
+		""" Encuentra un lugar """
+		geocoding = GoogleClient()
+		location = geocoding.getLocationFromAddress(address=address)
+		if location is None:
+			return None
 
-		venueId = firstVenue['id']
+		lat = location[0]
+		lng = location[1]
+		venue = self.getVenueInfo(mealType = mealType, lat = lat, lng = lng)
 
-		name = firstVenue['name']
+		if venue is None:
+			return None
 
-		firstPhotoUri = self.getAllVenuePhotosInfo(venueId = venueId)
+		venueId = venue['id']
+		name = venue['name']
+		firstPhotoUri = self.getVeueFisrtPhotoUriOfPlace(venueId = venueId, wsize = self.photo_width, hsize = self.photo_heigth)
 
 		address = ""
-		full_address = firstVenue['location']['formattedAddress']
+		full_address = venue['location']['formattedAddress']
 		for addres_part in full_address:
 			address += addres_part + " "
-	
-		return (name,address, firstPhotoUri)
+		
+		venue = FundVenue(name = name, address = address, photo = firstPhotoUri, nearvylatlon = '%s,%s' % (lat, lng) )
+		return venue
 
 	"""Cliente de foursquare"""
-	def __init__(self, clientId, clientSecret):
-		# apiClientId = clientId
-		# apiClientSecret clientSecret	
-
-#apiClientId = "BETQKBURO2NWRHD5FAKD2HPV1G4YCI0WGSRHW2C0XD15WUAN"
-#apiClientSecret = "GE04C20GBDZTHSQZHGETEPP05VV4EBDSKNEGOQDOVLO1YPTK"
+	def __init__(self):
+		# Lee el archivo de configuracion para el clientid y el clientsecret
+		config  = json.loads(open('config.json', 'r').read())
+		self.apiClientId = config['Foursquare']['client_id']
+		self.apiClientSecret = config['Foursquare']['client_secret']
 
 
 
