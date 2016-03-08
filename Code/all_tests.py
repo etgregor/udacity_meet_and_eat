@@ -1,4 +1,5 @@
 # coding=utf-8
+import json
 from googleclient import GoogleClient
 from foursquareclient import FoursquareClient
 
@@ -16,14 +17,14 @@ except Exception as err:
 else:
 	print "Test 1 PASS: Geocodificacion exitosa"
 
-
 #TEST 2 Encontrar lugar en foursaquare
 try:
 	forsquare = FoursquareClient()
 	venue =  forsquare.findAVenue(mealType='Pizza', address='Mexico City')
 	if location is None:
 		raise Exception('Direcció no encontrada: %s' % searchAddress)
-	print venue
+	#jsonify(restaurant = restaurant.serialize)
+	print json.dumps(venue, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 except Exception as err:
 	print "Test 2 FAILED: No se pudo encontrar el lugar"
 	print err.args
