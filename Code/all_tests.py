@@ -20,7 +20,7 @@ from foursquareclient import FoursquareClient
 #TEST 2 Encontrar lugar en foursaquare
 try:
 	forsquare = FoursquareClient()
-	venue =  forsquare.findAVenue(mealType='Pizza', address='Mexico City')
+	venue =  forsquare.findARestaurantByAddress(mealType='Pizza', address='Mexico City')
 	if venue is None:
 		raise Exception('Direcció no encontrada: %s' % searchAddress)
 	#jsonify(restaurant = restaurant.serialize)

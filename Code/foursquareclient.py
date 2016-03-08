@@ -1,3 +1,4 @@
+# coding=utf-8
 '''
  - Geocodifica direcciones con la api de google
  - @etgregor
@@ -12,7 +13,7 @@ sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 sys.stderr = codecs.getwriter('utf8')(sys.stderr)
 
 from googleclient import GoogleClient
-from foundvenue import FundVenue
+from restaurant import Restaurant
 
 class FoursquareClient(object):
 	""" Cliente para forsquare """
@@ -62,24 +63,9 @@ class FoursquareClient(object):
 		firstVenue = jsonResult['response']['venues'][0]
 		return firstVenue
 
-
-	def findAVenue(self, mealType, address):
-		""" Encuentra un lugar """
-		venueId = ""
-		name = ""
-		photoUri = ""
-		photoPrefix = ""
-		photoSufix = ""
-
-		geocoding = GoogleClient()
-		location = geocoding.getLocationFromAddress(address=address)
-		if location is None:
-			return None
-
-		lat = location[0]
-		lng = location[1]
-		venue = self.getVenueInfo(mealType = mealType, lat = lat, lng = lng)
-
+	def findARestaurantByLocation(self, mealType, latitude, longitude):
+		""" Encuentra un restaurant por la coordenadas geográficas"""
+		venue = self.getVenueInfo(mealType = mealType, lat = latitude, lng = longitude)
 		if venue is None:
 			return None
 
@@ -98,8 +84,26 @@ class FoursquareClient(object):
 		for addres_part in full_address:
 			address += addres_part + " "
 		
-		venue = FundVenue(name = name, address = address, photo = photoUri, photoPrefix = photoPrefix, photoSufix = photoSufix, latitude = lat, longitude =lng) 
-		return venue
+		restaurant = Restaurant(name = name, address = address, photo = photoUri, photoPrefix = photoPrefix, photoSufix = photoSufix, latitude = latitude, longitude =longitude) 
+		return restaurant
+
+	def findARestaurantByAddress(self, mealType, address):
+		""" Encuentra un re """
+		venueId = ""
+		name = ""
+		photoUri = ""
+		photoPrefix = ""
+		photoSufix = ""
+
+		geocoding = GoogleClient()
+		location = geocoding.getLocationFromAddress(address=address)
+		if location is None:
+			return None
+
+		lat = location[0]
+		lng = location[1]
+		restaurant = self.findARestaurantByLocation(mealType = mealType,latitude=lat, longitude=lng)
+		return restaurant
 
 	"""Cliente de foursquare"""
 	def __init__(self):

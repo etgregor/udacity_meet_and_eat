@@ -1,4 +1,4 @@
-class FundVenue(object):
+class Restaurant(object):
 	""" Lugar encontrado """
 	Name = ''
 	Address = ''
