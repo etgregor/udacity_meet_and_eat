@@ -46,16 +46,6 @@ class FoursquareClient(object):
 		
 		return firstPhoto
 
-
-	def getVeueFisrtPhotoUriOfPlace(self, venueId, wsize, hsize):
-		#https://irs0.4sqi.net/img/general/300x500/2341723_vt1Kr-SfmRmdge-M7b4KNgX2_PHElyVbYL65pMnxEQw.jpg.
-		firstPhoto = self.getFistrVenuePhotoInfo(venueId=venueId)
-		photoUri = ""
-		if firstPhoto is not None:
-			photoUri = "%s%sx%s%s" % (firstPhoto['prefix'],wsize, hsize ,firstPhoto['suffix'])
-		
-		return photoUri
-
 	def getVenueInfo(self, mealType, lat, lng):
 		authParam = self.getParamAuth()
 		versionParam = "&v=20130815"
@@ -75,6 +65,12 @@ class FoursquareClient(object):
 
 	def findAVenue(self, mealType, address):
 		""" Encuentra un lugar """
+		venueId = ""
+		name = ""
+		photoUri = ""
+		photoPrefix = ""
+		photoSufix = ""
+
 		geocoding = GoogleClient()
 		location = geocoding.getLocationFromAddress(address=address)
 		if location is None:
@@ -89,14 +85,20 @@ class FoursquareClient(object):
 
 		venueId = venue['id']
 		name = venue['name']
-		firstPhotoUri = self.getVeueFisrtPhotoUriOfPlace(venueId = venueId, wsize = self.photo_width, hsize = self.photo_heigth)
+		
+		firstPhoto = self.getFistrVenuePhotoInfo(venueId=venueId)
 
+		if firstPhoto is not None:
+			photoUri = "%s%sx%s%s" % (firstPhoto['prefix'], self.photo_width, self.photo_heigth ,firstPhoto['suffix'])
+			photoPrefix = firstPhoto['prefix']
+			photoSufix = firstPhoto['suffix']
+		
 		address = ""
 		full_address = venue['location']['formattedAddress']
 		for addres_part in full_address:
 			address += addres_part + " "
 		
-		venue = FundVenue(name = name, address = address, photo = firstPhotoUri, nearvylatlon = '%s,%s' % (lat, lng) )
+		venue = FundVenue(name = name, address = address, photo = photoUri, photoPrefix = photoPrefix, photoSufix = photoSufix, latitude = lat, longitude =lng) 
 		return venue
 
 	"""Cliente de foursquare"""

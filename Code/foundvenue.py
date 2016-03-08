@@ -3,10 +3,16 @@ class FundVenue(object):
 	Name = ''
 	Address = ''
 	Photo = ''
-	NearvyLatLon = ''
+	PhotoPrefix = ''
+	PhotoSufix = ''
+	Latitude = 0
+	Longitude = 0
 
-	def __init__(self, name, address, photo, nearvylatlon):
+	def __init__(self, name, address, photo, photoPrefix, photoSufix, latitude, longitude):
 		self.Name = name
 		self.Address = address
 		self.Photo = photo
-		self.NearvyLatLon = nearvylatlon
+		self.PhotoPrefix = photoPrefix
+		self.PhotoSufix = photoSufix
+		self.Latitude = latitude
+		self.Longitude = longitude
