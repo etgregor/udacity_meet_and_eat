@@ -42,3 +42,6 @@ Thumbs.db
 *.dat
 ._.DS_Store
 .DS_Store
+*.pyc
+
+*.pyc

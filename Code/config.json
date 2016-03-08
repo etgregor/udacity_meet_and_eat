@@ -1,0 +1,9 @@
+{
+	"Google":{
+		"GeocodeKey":"AIzaSyDbZfw08UHQLE4K9qYTPu0Wx2Llfhl75SU"
+	 },
+	 "Foursquare":{
+	 	"client_id":"BETQKBURO2NWRHD5FAKD2HPV1G4YCI0WGSRHW2C0XD15WUAN",
+	 	"client_secret":"GE04C20GBDZTHSQZHGETEPP05VV4EBDSKNEGOQDOVLO1YPTK"
+	 }
+}
