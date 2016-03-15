@@ -1,4 +1,5 @@
 from dbmodel import Base, User, Request, Proposal
+from googleclient import GoogleClient
 from flask import Flask, jsonify, request, url_for, abort, g, render_template
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -110,7 +111,7 @@ def get_auth_token():
     token = g.user.generate_auth_token()
     return jsonify({'token': token.decode('ascii')})
 
-@app.route('/users', methods = ['GET','POST','PUT'])
+@app.route('/api/v1/users', methods = ['GET','POST','PUT'])
 def users():
 	if request.method == 'GET':
 		users = getAllusers()
@@ -138,16 +139,20 @@ def users():
 		picture = request.json.get('picture')
 		updated = updateUser(username, password, email, picture)
 		if updated == False:
-			return jsonify({ 'message': 'user not found' }), 404
+			return jsonify({ 'code':'UserNotFound', 'message': 'user not found' }), 404
 		return jsonify({ 'username': username }), 204
-
 
 @app.route('/api/users/<int:id>')
 def get_user(id):
-    user = session.query(User).filter_by(id=id).one()
+    user = session.query(User).filter_by(id=id).first()
     if not user:
-        abort(400)
+        return jsonify({ 'code':'UserNotFound', 'message': 'user not found' }), 404
     return jsonify({'username': user.username})
+
+@app.route('/api/requests')
+def requests():
+
+
 
 @app.route('/api/resource')
 @auth.login_required
@@ -180,6 +185,24 @@ def updateUser(username, password, email, picture):
 def getUserByUsername(username):
 	user = session.query(User).filter_by(username = username).first()
 	return user
+
+def addRequest(userId, mealType, meaiTime, locationAddress):
+	geocoding = GoogleClient()
+	location = geocoding.getLocationFromAddress(address=locationAddress)
+	if location is None:
+		raise ValueError('Dirección no encontrada en el mapa: %s' % locationAddress)
+
+	request = Request()
+	request.user_id = userId
+	request.meal_type = mealType
+	request.meal_time = meaiTime
+	request.location_address = locationAddress
+	request.location_latitude = location[0]
+	request.location_longitude = location[1]
+	session.add(request)
+	session.commit()
+
+def getRequest
 
 if __name__ == '__main__':
 	app.secret_key = 'super_secret_key'
