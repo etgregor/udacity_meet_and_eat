@@ -1,3 +1,4 @@
+# coding=utf-8
 from dbmodel import Base, User, Request, Proposal
 from googleclient import GoogleClient
 from flask import Flask, jsonify, request, url_for, abort, g, render_template
@@ -111,50 +112,56 @@ def get_auth_token():
     token = g.user.generate_auth_token()
     return jsonify({'token': token.decode('ascii')})
 
-@app.route('/api/v1/users', methods = ['GET','POST','PUT'])
+@app.route('/api/v1/users', methods = ['GET'])
+def get_allusers():
+	users = getAllusers()
+	return jsonify(users = [user.serialize for user in users])
+
+@app.route('/api/v1/users', methods = ['PUT'])
+def update_user():
+	username = request.json.get('username')
+	password = request.json.get('password')
+	email = request.json.get('email')
+	picture = request.json.get('picture')
+
+	if username is None or password is None:
+	    abort(400) 
+
+	user = getUserByUsername(username)
+
+	if user is None:
+		addUser(username, password, email, picture)
+	else:
+		return jsonify({'message':'user already exists'}), 200
+	return jsonify({ 'username': username }), 201
+
+@app.route('/api/v1/users', methods = ['POST'])
 def users():
-	if request.method == 'GET':
-		users = getAllusers()
-		return jsonify(users = [user.serialize for user in users])
-	elif request.method == 'POST':
-		username = request.json.get('username')
-		password = request.json.get('password')
-		email = request.json.get('email')
-		picture = request.json.get('picture')
+	username = request.json.get('username')
+	password = request.json.get('password')
+	email = request.json.get('email')
+	picture = request.json.get('picture')
 
-		if username is None or password is None:
-		    abort(400) 
+	if username is None or password is None:
+	    abort(400) 
 
-		user = getUserByUsername(username)
+	user = getUserByUsername(username)
 
-		if user is None:
-			addUser(username, password, email, picture)
-		else:
-			return jsonify({'message':'user already exists'}), 200
-		return jsonify({ 'username': username }), 201
-	elif request.method == 'PUT':
-		username = request.json.get('username')
-		password = request.json.get('password')
-		email = request.json.get('email')
-		picture = request.json.get('picture')
-		updated = updateUser(username, password, email, picture)
-		if updated == False:
-			return jsonify({ 'code':'UserNotFound', 'message': 'user not found' }), 404
-		return jsonify({ 'username': username }), 204
+	if user is None:
+		addUser(username, password, email, picture)
+	else:
+		return jsonify({'message':'user already exists'}), 200
+	return jsonify({ 'username': username }), 201
 
-@app.route('/api/users/<int:id>')
-def get_user(id):
+@auth.login_required
+@app.route('/api/v1/users/<int:id>')
+def get_userbyid(id):
     user = session.query(User).filter_by(id=id).first()
     if not user:
         return jsonify({ 'code':'UserNotFound', 'message': 'user not found' }), 404
     return jsonify({'username': user.username})
 
-@app.route('/api/requests')
-def requests():
-
-
-
-@app.route('/api/resource')
+@app.route('/api/v1/resource')
 @auth.login_required
 def get_resource():
     return jsonify({ 'data': 'Hello, %s!' % g.user.username })
@@ -201,8 +208,6 @@ def addRequest(userId, mealType, meaiTime, locationAddress):
 	request.location_longitude = location[1]
 	session.add(request)
 	session.commit()
-
-def getRequest
 
 if __name__ == '__main__':
 	app.secret_key = 'super_secret_key'
