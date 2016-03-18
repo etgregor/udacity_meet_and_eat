@@ -16,7 +16,8 @@ class User(Base):
   id = Column(Integer, primary_key = True)
   username = Column(String(32), index = True)
   password_hash = Column(String(64))
-  email = Column(String)
+  name = Column(String)
+  email = Column(String, index = True)
   picture = Column(String)
   request = relationship('Request')
   
@@ -28,6 +29,7 @@ class User(Base):
 
   def generate_auth_token(self, expiration=600):
     s = Serializer(secret_key, expires_in = expiration)
+    print self.id
     return s.dumps({'id': self.id })
 
   @staticmethod
