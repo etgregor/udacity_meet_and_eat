@@ -49,7 +49,6 @@ class User(Base):
   @property
   def serialize(self):
     return {
-      'id' : self.id,
       'email': self.email,
       'name': self.name,
       'picture' : self.picture

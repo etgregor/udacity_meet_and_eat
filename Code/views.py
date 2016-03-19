@@ -144,13 +144,13 @@ def get_all_users():
     return jsonify(users=[user.serialize for user in users])
 
 
-@app.route('/api/v1/users/<int:id>')
+@app.route('/api/v1/users/<string:email>')
 @auth.login_required
-def get_user_by_id(id):
-    user = session.query(User).filter_by(id=id).first()
+def get_user_by_id(email):
+    user = session.query(User).filter_by(email=email).first()
     if not user:
         return jsonify({'code': 'UserNotFound', 'message': 'user not found'}), 400
-    return jsonify({'email': user.email})
+    return jsonify(user.serialize)
 
 
 @app.route('/api/v1/users', methods=['POST'])
