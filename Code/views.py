@@ -29,13 +29,16 @@ app = Flask(__name__)
 
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
 
+
 @auth.verify_password
-def verify_password(username_or_token, password):
-    user_id = User.verify_auth_token(username_or_token)
+def verify_password(email_or_token, password):
+    user_id = User.verify_auth_token(email_or_token)
+
     if user_id:
         user = session.query(User).filter_by(id=user_id).one()
     else:
-        user = session.query(User).filter_by(username=username_or_token).first()
+        user = session.query(User).filter_by(email=email_or_token).first()
+
         if not user or not user.verify_password(password):
             return False
     g.user = user
@@ -87,15 +90,21 @@ def login(provider):
         email = data['email']
 
         # Si el usuario no existe, en ese momento lo registra
-        user = session.query(User).filter_by(username=email).first()
+        user = session.query(User).filter_by(email=email).first()
         if not user:
-            user = adduser(email, None, name, email, picture)
+            user = User()
+            user.email = email
+            user.name = name
+            user.picture = picture
+            session.add(user)
+            session.commit()
         # STEP 4 - Make token
         token = user.generate_auth_token()
+
         # STEP 5 - Send back token to the client
         return jsonify({'token': token.decode('ascii')})
     else:
-        return 'Unrecoginized Provider'
+        return jsonify({'code': 'InvalidProvider', 'message': 'Proveedor de autenticaicón incorrecto'}), 400
 
 
 @app.route('/token')
@@ -105,103 +114,68 @@ def get_auth_token():
     return jsonify({'token': token.decode('ascii')})
 
 
-@app.route('/api/v1/users', methods=['GET'])
+@app.route('/api/v1/me')
 @auth.login_required
-def get_allusers():
-    users = getAllusers()
-    return jsonify(users=[user.serialize for user in users])
+def get_my_profile():
+    return jsonify(g.user.serialize)
 
 
-@app.route('/api/v1/users', methods=['PUT'])
+@app.route('/api/v1/me', methods=['PUT'])
 @auth.login_required
-def update_user():
-    username = request.json.get('username')
-    password = request.json.get('password')
+def update_my_profile():
+    print 'llega'
     name = request.json.get('name')
-    email = request.json.get('email')
     picture = request.json.get('picture')
 
-    if username is None or password is None:
-        abort(400)
-
-    user = updateUser(username, password, name, email, picture)
+    user = session.query(User).filter_by(email=g.user.email).first()
 
     if user is None:
         return jsonify({'code': 'UserNotFound', 'message': 'user not found'}), 404
 
-    return jsonify({'username': user.username}), 201
+    user.name = name
+    user.picture = picture
+    session.commit()
+    return jsonify({'email': user.email}), 201
+
+@app.route('/api/v1/users', methods=['GET'])
+@auth.login_required
+def get_all_users():
+    users = session.query(User).all()
+    return jsonify(users=[user.serialize for user in users])
+
+
+@app.route('/api/v1/users/<int:id>')
+@auth.login_required
+def get_user_by_id(id):
+    user = session.query(User).filter_by(id=id).first()
+    if not user:
+        return jsonify({'code': 'UserNotFound', 'message': 'user not found'}), 400
+    return jsonify({'email': user.email})
 
 
 @app.route('/api/v1/users', methods=['POST'])
 def add_new_user():
-    username = request.json.get('username')
+    email = request.json.get('email')
     password = request.json.get('password')
     name = request.json.get('name')
-    email = request.json.get('email')
     picture = request.json.get('picture')
 
-    if username is None or password is None:
+    if email is None or password is None:
         abort(400)
 
-    user = getUserByUsername(username)
+    user = session.query(User).filter_by(email=email).first()
 
     if user is None:
-        user = adduser(username, password, name, email, picture)
+        user = User(email = email)
+        user.hash_password(password)
+        user.name = name
+        user.picture = picture
+        session.add(user)
+        session.commit()
     else:
         return jsonify({'message': 'user already exists'}), 200
-    return jsonify({'username': user.username}), 201
 
-
-@auth.login_required
-@app.route('/api/v1/users/<int:id>')
-def get_user_by_id(id):
-    user = session.query(User).filter_by(id=id).first()
-    if not user:
-        return jsonify({'code': 'UserNotFound', 'message': 'user not found'}), 404
-    return jsonify({'username': user.username})
-
-
-@app.route('/api/v1/me')
-@auth.login_required
-def get_resource():
-    return jsonify(g.user.serialize)
-
-def getAllusers():
-    users = session.query(User).all()
-    return users
-
-
-def adduser(username, password, name, email, picture):
-    user = User()
-    user.username = username
-    user.name = name
-    user.email = email
-    user.picture = picture
-
-    if password is not None:
-        user.hash_password(password)
-
-    session.add(user)
-    session.commit()
-    return user
-
-def updateUser(username, password, name, email, picture):
-    user = getUserByUsername(username)
-    if user is None:
-        return None
-
-    if password is not None:
-        user.hash_password(password)
-    user.name = name
-    user.email = email
-    user.picture = picture
-    session.commit()
-    return user
-
-
-def getUserByUsername(username):
-    user = session.query(User).filter_by(username=username).first()
-    return user
+    return jsonify({'email': user.email}), 201
 
 
 def addRequest(userId, mealType, meaiTime, locationAddress):
