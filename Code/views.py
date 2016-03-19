@@ -31,9 +31,6 @@ CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_i
 
 @auth.verify_password
 def verify_password(username_or_token, password):
-    print "LLega para verificar el pwd:"
-    print username_or_token
-    print '--------------------------'
     user_id = User.verify_auth_token(username_or_token)
     if user_id:
         user = session.query(User).filter_by(id=user_id).one()
@@ -54,7 +51,6 @@ def start():
 def login(provider):
     # STEP 1 - Parse the auth code
     auth_code = request.json.get('auth_code')
-    print "Step 1 - Complete, received auth code %s" % auth_code
     if provider == 'google':
         # STEP 2 - Exchange for a token
         try:
@@ -96,7 +92,6 @@ def login(provider):
             user = adduser(email, None, name, email, picture)
         # STEP 4 - Make token
         token = user.generate_auth_token()
-        print token
         # STEP 5 - Send back token to the client
         return jsonify({'token': token.decode('ascii')})
     else:
@@ -111,12 +106,14 @@ def get_auth_token():
 
 
 @app.route('/api/v1/users', methods=['GET'])
+@auth.login_required
 def get_allusers():
     users = getAllusers()
     return jsonify(users=[user.serialize for user in users])
 
 
 @app.route('/api/v1/users', methods=['PUT'])
+@auth.login_required
 def update_user():
     username = request.json.get('username')
     password = request.json.get('password')
@@ -136,7 +133,7 @@ def update_user():
 
 
 @app.route('/api/v1/users', methods=['POST'])
-def users():
+def add_new_user():
     username = request.json.get('username')
     password = request.json.get('password')
     name = request.json.get('name')
@@ -157,7 +154,7 @@ def users():
 
 @auth.login_required
 @app.route('/api/v1/users/<int:id>')
-def get_userbyid(id):
+def get_user_by_id(id):
     user = session.query(User).filter_by(id=id).first()
     if not user:
         return jsonify({'code': 'UserNotFound', 'message': 'user not found'}), 404
@@ -168,8 +165,6 @@ def get_userbyid(id):
 @auth.login_required
 def get_resource():
     return jsonify(g.user.serialize)
-    #return jsonify({'data': 'Hello, %s!' % g.user.username})
-
 
 def getAllusers():
     users = session.query(User).all()
