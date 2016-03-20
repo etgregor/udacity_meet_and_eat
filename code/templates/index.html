@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Meal and Eat</title>
-    <meta name="description" content="Meal And Eat" />
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+    <meta name="description" content="Meal And Eat"/>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" rel="stylesheet">
     <link href="https://lipis.github.io/bootstrap-social/bootstrap-social.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://lipis.github.io/bootstrap-social/assets/css/font-awesome.css">
@@ -137,73 +137,76 @@
                 }
             );
         });
+
     </script>
 </head>
 <body>
-    <nav class="navbar navbar-default navbar-inverse" role="navigation">
-        <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                    <span class="sr-only">Meal and Eat</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">Meal and Eat</a>
-            </div>
+<nav class="navbar navbar-default navbar-inverse" role="navigation">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Meal and Eat</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Meal and Eat</a>
+        </div>
 
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav" id="usermenu" style="display: none;">
-                    <li><a href="#">Mis Solicitudes</a></li>
-                    <li><a href="#">Mis Propuestas</a></li>
-                    <!--<li><a href="#">Link</a></li>-->
-                    <!--<li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                            <li class="divider"></li>
-                            <li><a href="#">One more separated link</a></li>
-                        </ul>
-                    </li>-->
-                </ul>
-                <form class="navbar-form navbar-left" role="search">
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Lugar para comer">
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav" id="usermenu" style="display: none;">
+                <li><a href="#">Mis Solicitudes</a></li>
+                <li><a href="#">Mis Propuestas</a></li>
+                <!--<li><a href="#">Link</a></li>-->
+                <!--<li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="#">Action</a></li>
+                        <li><a href="#">Another action</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Separated link</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">One more separated link</a></li>
+                    </ul>
+                </li>-->
+            </ul>
+            <form class="navbar-form navbar-left" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Lugar para comer">
+                </div>
+                <button type="submit" class="btn btn-default">Buscar</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right" id="loginmenu">
+                <li>
+                    <p class="navbar-text">Ya tienes una cuenta?</p>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Inica sesión</b> <span
+                            class="caret"></span></a>
+                    <div id="login-dp" class="dropdown-menu">
                     </div>
-                    <button type="submit" class="btn btn-default">Buscar</button>
-                </form>
-                <ul class="nav navbar-nav navbar-right" id="loginmenu">
-                    <li>
-                        <p class="navbar-text">Ya tienes una cuenta?</p>
-                    </li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Inica sesión</b> <span class="caret"></span></a>
-                        <div id="login-dp" class="dropdown-menu" >
-                        </div>
-                    </li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right" id="userinfo">
-                    <p class="navbar-text"></p>
-                    <li>
-                        <img src="" class="img-responsive img-circle" alt="" style="width:50px;height:auto;">
-                        </li>
-                </ul>
-            </div><!-- /.navbar-collapse -->
-        </div><!-- /.container-fluid -->
-    </nav>
-    <div id="workarea" class="container" style="padding-top: 50px;">
-        
-    </div>
-    <footer>
-        <p>
-            <a href="https://twitter.com/etgregor">@etgregor</a>
-        </p>
-    </footer>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right" id="userinfo">
+                <p class="navbar-text"></p>
+                <li>
+                    <img src="" class="img-responsive img-circle" alt="" style="width:50px;height:auto;">
+                </li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<div id="workarea" class="container" style="padding-top: 50px;">
+
+</div>
+<footer>
+    <p>
+        <a href="https://twitter.com/etgregor">@etgregor</a>
+    </p>
+</footer>
 </body>
 </html>
