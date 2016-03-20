@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Meal and Eat</title>
+    <meta name="description" content="Meal And Eat" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="https://lipis.github.io/bootstrap-social/bootstrap-social.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://lipis.github.io/bootstrap-social/assets/css/font-awesome.css">
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="https://apis.google.com/js/platform.js?onload=start"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+    <script>
+
+        var controler = new function () {
+            var token = '';
+            var self = this;
+
+            this.make_base_auth = function (user, password) {
+                var tok = user + ':' + password;
+                var hash = btoa(tok);
+                return "Basic " + hash;
+            }
+
+            this.setToken = function (accessToken) {
+                token = accessToken;
+                $.ajaxSetup({
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', self.make_base_auth(token, ''));
+                    }
+                });
+            };
+
+            this.loadMyProfile = function () {  
+                $.ajax({
+                    type: "GET",
+                    url: "/api/v1/me",
+                    success: function (result) {
+                        $("#workarea").html("");
+                        $("#loginmenu").hide();
+                        $("#userinfo,#usermenu").show();
+                        $("p","#userinfo").html(result.name);
+                        $("img","#userinfo").attr("src",result.picture)
+                    }
+                });
+
+            };
+        };
+
+        function signInCallback(json) {
+            var authResult = json;
+            if (authResult['code']) {
+                $('.signinButton').attr('style', 'display: none');
+                $.ajax({
+                    type: 'POST',
+                    url: '/oauth/google',
+                    processData: false,
+                    data: JSON.stringify({ auth_code: authResult['code'] }),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (result) {
+                        controler.setToken(result.token);
+                        controler.loadMyProfile();
+                    },
+                    error: function (jqXHR, textStatus) {
+                        alert(textStatus);
+                    }
+                });
+            }
+        }
+
+        gapi.load('auth2', function () {
+            auth2 = gapi.auth2.init({
+                client_id: '64678575387-909spcbjni2gf3vmq7181ifdp2fvqsaj.apps.googleusercontent.com'
+            });
+        });
+
+        var spinner = null;
+        $(document).ready(function () {
+
+
+            $.ajaxSetup({
+                    beforeSend: function (xhr) {
+                                    var target = document.getElementById('workarea');
+                                    spinner = new Spinner().spin(target);
+                    },
+                    complete: function() {
+                        if(spinner != null)
+                        {
+                            spinner.stop();
+                            spinner = null;
+                        }
+    }
+
+                });
+
+            $('body').on("click",'.btn-google',function () {
+                auth2.grantOfflineAccess({ 'redirect_uri': 'postmessage' }).then(signInCallback);
+            });
+
+            $("#workarea,#login-dp").load( "/loginview" );
+
+            $('body').on("click",".localSinginButton",function () {
+                var parent = $(this).closest('.form-signin')
+
+                var username = $("input#inputEmail", parent).val();
+                var password = $("input#inputPassword", parent).val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/oauth/local',
+                    processData: false,
+                    data: JSON.stringify({ email: username, password: password }),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (result) {
+                        controler.setToken(result.token);
+                        controler.loadMyProfile();
+                    },
+                    error: function (data, textStatus, jqXHR) {
+                        var ex = $.parseJSON(data.responseText);
+                        if (ex && ex.error) {
+                            alert(ex.error.message);
+                        }
+                    }
+                });
+            });
+
+            $(".dropdown").hover(
+                function () {
+                    $('.dropdown-menu', this).stop(true, true).slideDown("fast");
+                    $(this).toggleClass('open');
+                },
+                function () {
+                    $('.dropdown-menu', this).stop(true, true).slideUp("fast");
+                    $(this).toggleClass('open');
+                }
+            );
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar navbar-default navbar-inverse" role="navigation">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Meal and Eat</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Meal and Eat</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav" id="usermenu" style="display: none;">
+                    <li><a href="#">Mis Solicitudes</a></li>
+                    <li><a href="#">Mis Propuestas</a></li>
+                    <!--<li><a href="#">Link</a></li>-->
+                    <!--<li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#">One more separated link</a></li>
+                        </ul>
+                    </li>-->
+                </ul>
+                <form class="navbar-form navbar-left" role="search">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Lugar para comer">
+                    </div>
+                    <button type="submit" class="btn btn-default">Buscar</button>
+                </form>
+                <ul class="nav navbar-nav navbar-right" id="loginmenu">
+                    <li>
+                        <p class="navbar-text">Ya tienes una cuenta?</p>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Inica sesión</b> <span class="caret"></span></a>
+                        <div id="login-dp" class="dropdown-menu" >
+                        </div>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right" id="userinfo">
+                    <p class="navbar-text"></p>
+                    <li>
+                        <img src="" class="img-responsive img-circle" alt="" style="width:50px;height:auto;">
+                        </li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+    <div id="workarea" class="container" style="padding-top: 50px;">
+        
+    </div>
+    <footer>
+        <p>
+            <a href="https://twitter.com/etgregor">@etgregor</a>
+        </p>
+    </footer>
+</body>
+</html>

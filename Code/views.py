@@ -44,11 +44,14 @@ def verify_password(email_or_token, password):
     g.user = user
     return True
 
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
 
-@app.route('/clientOAuth')
-def start():
-    return render_template('clientOAuth.html')
 
+@app.route('/loginview')
+def loginview():
+    return render_template('loginview.html')
 
 @app.route('/oauth/<provider>', methods=['POST'])
 def login(provider):
@@ -103,9 +106,18 @@ def login(provider):
 
         # STEP 5 - Send back token to the client
         return jsonify({'token': token.decode('ascii')})
-    else:
-        return jsonify({'code': 'InvalidProvider', 'message': 'Proveedor de autenticaicón incorrecto'}), 400
+    elif 'local':
+        email = request.json.get('email')
+        password = request.json.get('password')
+        user = session.query(User).filter_by(email=email).first()
+        if not user or not user.verify_password(password):
+            return jsonify( error = {'code': 'InvalidUserPassword', 'message': 'Usuario y/o contraseña incorrecto'}), 401
 
+        token = user.generate_auth_token()
+        return jsonify({'token': token.decode('ascii')})
+
+    else:
+        return jsonify(json = {'code': 'InvalidProvider', 'message': 'Proveedor de autenticaicón incorrecto'}), 400
 
 @app.route('/token')
 @auth.login_required
@@ -130,7 +142,7 @@ def update_my_profile():
     user = session.query(User).filter_by(email=g.user.email).first()
 
     if user is None:
-        return jsonify({'code': 'UserNotFound', 'message': 'user not found'}), 404
+        return jsonify(error={'code': 'UserNotFound', 'message': 'user not found'}), 404
 
     user.name = name
     user.picture = picture
@@ -149,11 +161,12 @@ def get_all_users():
 def get_user_by_id(email):
     user = session.query(User).filter_by(email=email).first()
     if not user:
-        return jsonify({'code': 'UserNotFound', 'message': 'user not found'}), 400
+        return jsonify(error={'code': 'UserNotFound', 'message': 'user not found'}), 400
     return jsonify(user.serialize)
 
 
 @app.route('/api/v1/users', methods=['POST'])
+#@auth.login_required
 def add_new_user():
     email = request.json.get('email')
     password = request.json.get('password')
