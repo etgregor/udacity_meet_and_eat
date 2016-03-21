@@ -1,7 +1,8 @@
 # coding=utf-8
 from dbmodel import Base, User, Request, Proposal
 from googleclient import GoogleClient
-from flask import Flask, jsonify, request, url_for, abort, g, render_template
+from flask import Flask, jsonify, request, url_for, abort, g, render_template, redirect, url_for, send_from_directory
+
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
@@ -29,6 +30,10 @@ app = Flask(__name__)
 
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
 
+@app.route('/static/<path:path>')
+def static_proxy(path):
+  # send_static_file will guess the correct MIME type
+  return app.send_static_file(path)
 
 @auth.verify_password
 def verify_password(email_or_token, password):
@@ -44,6 +49,7 @@ def verify_password(email_or_token, password):
     g.user = user
     return True
 
+# ================================== Vistas ==================================
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
@@ -53,6 +59,12 @@ def index():
 def loginview():
     return render_template('loginview.html')
 
+
+@app.route('/myrequests')
+def myrequests():
+    return render_template('myrequests.html')
+
+# ================================== INICIA LA API ==================================
 @app.route('/oauth/<provider>', methods=['POST'])
 def login(provider):
     # STEP 1 - Parse the auth code
@@ -124,7 +136,6 @@ def login(provider):
 def get_auth_token():
     token = g.user.generate_auth_token()
     return jsonify({'token': token.decode('ascii')})
-
 
 @app.route('/api/v1/me')
 @auth.login_required
