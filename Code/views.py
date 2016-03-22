@@ -215,9 +215,8 @@ def add_new_user():
 @auth.login_required
 def myrequests():
     userid = g.user.id
-    #users = session.query(Request).filter(User.id == userid)
-    users = session.query(Request).filter_by(user_id = userid)
-    return jsonify(users=[user.serialize for user in users])
+    requests = session.query(Request).filter_by(user_id = userid)
+    return jsonify(requests=[r.serialize for r in requests])
 
 
 @app.route('/api/v1/request', methods=['POST'])

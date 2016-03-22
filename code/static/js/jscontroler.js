@@ -128,15 +128,18 @@ var jscontroler = new function () {
     };
 
     this.loadMyRequests = function () {
-        $.ajax({
-            type: "GET",
-            url: "/api/v1/request",
-            success: function (result) {
-                $("#userworkarea").text(JSON.stringify(result));
-            }
+        $("#userworkarea").html('<table id="myrequesttable"></table>')
+
+        $.get('/api/v1/request', function (data) {
+            $('#myrequesttable').dataTable({
+                "data": data.requests,
+                "columns": [
+                    { "data": "meal_time", "title": "Tiempo" },
+                    { "data": "meal_type", "title": "Tipo" },
+                    { "data": "location_address", "title": "Direccion" }
+                ]
+            });
         });
-        ///api/v1/request
-         //$("#userworkarea").load("/myrequests");
     };
 
     this.showAddRequestForm = function (lat, lng, name, address) {
