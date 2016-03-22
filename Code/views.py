@@ -64,6 +64,11 @@ def loginview():
 def myrequests():
     return render_template('myrequests.html')
 
+
+@app.route('/requestform')
+def getraddequestform():
+    return render_template('addrequestform.html')
+
 # ================================== INICIA LA API ==================================
 @app.route('/oauth/<provider>', methods=['POST'])
 def login(provider):

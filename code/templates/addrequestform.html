@@ -1,0 +1,22 @@
+<form class="form-horizontal" style="padding-left: 25px;">
+    <div class="form-group">
+        <label for="meal_type">Tipo de comida</label>
+        <input type="text" class="form-control" name="meal_type" id="meal_type" required="" placeholder="Ejemplo: Tacos" />
+    </div>
+    <div class="form-group">
+        <label for="meal_time" class="control-label">Hola de comida</label>
+        <input type="text" class="form-control" name="meal_time" id="meal_time" required="" placeholder="Ejemplo: Desayuno" />
+    </div>
+    <div class="form-group">
+        <label for="meal_time" class="col-sm-2 control-label">Direcci&oacute;n</label>
+        <input type="text" class="form-control" name="meal_address" id="meal_address" required="" placeholder="Direcci&oacute;n" />
+        <input type="hidden" name="original_latitude" id="original_latitude"/>
+        <input type="hidden" name="original_longitude" id="original_longitude" />
+    </div>
+
+    <div class="form-group">
+        <input type="button" class="btn btn btn-default" id="canceladdrequest" value="Cancelar"/>
+        
+        <button class="btn btn-success" id="addrequestbutton">Agregar</button>
+    </div>
+</form>

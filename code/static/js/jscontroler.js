@@ -41,7 +41,14 @@ var jscontroler = new function () {
             auth2.grantOfflineAccess({ 'redirect_uri': 'postmessage' }).then(signInCallback);
         });
 
-        $("#login-dp").load("/loginview");
+        auxToken = $.cookie("token");
+
+        if (typeof (auxToken) != "undefined") {
+            jscontroler.setToken(auxToken);
+            jscontroler.loadHome();
+        } else {
+            $("#login-dp,#userworkarea").load("/loginview");
+        }
 
         $('body').on("click", ".localSinginButton", function () {
             var parent = $(this).closest('.form-signin');
@@ -90,6 +97,7 @@ var jscontroler = new function () {
 
     this.setToken = function (accessToken) {
         token = accessToken;
+        $.cookie("token", token);
         $.ajaxSetup({
             beforeSend: function (xhr) {
                 xhr.setRequestHeader('Authorization', self.make_base_auth(token, ''));
@@ -107,7 +115,7 @@ var jscontroler = new function () {
             type: "GET",
             url: "/api/v1/me",
             success: function (result) {
-                $("#workarea").html("");
+                $("#userworkarea").html("");
                 $("#loginmenu").hide();
                 $("#userinfo,#usermenu").show();
                 $("p", "#userinfo").html(result.name);
@@ -117,6 +125,31 @@ var jscontroler = new function () {
     };
 
     this.loadMyRequests = function () {
-        // $("#workarea").load("/myrequests");
+         $("#userworkarea").load("/myrequests");
+    };
+
+    this.showAddRequestForm = function (lat, lng, name, address) {
+        if (token !== '') {
+            $("#userworkarea").load("/requestform", function() {
+                $("#meal_type").val('');
+                $("#meal_time").val('');
+                $("#meal_address").val(address);
+                $("#original_latitude").val(lat);
+                $("#original_longitude").val(lng);
+
+                $("#addrequestbutton").click(function(e) {
+                    e.prevent();
+                    alert('agrega');
+                });
+
+                $("#canceladdrequest").click(function(e) {
+                    e.prevent();
+                    alert('cancelar');
+                });
+            });
+        } else {
+            $("#userworkarea .bg-warning").remove();
+            $("#userworkarea").prepend('<p class="bg-warning">Debe iniciar sesion</p>');
+        }
     };
 };

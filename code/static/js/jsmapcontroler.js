@@ -11,15 +11,24 @@ var jsmapcontroler = new function () {
                     latLng: e.latLng,
                     callback: function (results, status) {
                         if (status == 'OK') {
+
+                            gmap.removeMarkers();
                             var fistPlace = results[0];
                             var latlng = fistPlace.geometry.location;
+                            var lat = latlng.lat();
+                            var lng = latlng.lng();
+                            var name = fistPlace.name || '';
+                            var address = fistPlace.formatted_address;
 
+                            jscontroler.showAddRequestForm(lat, lng, name, address);
+
+                            gmap.removeMarkers();
                             gmap.addMarker({
-                                lat: latlng.lat(),
-                                lng: latlng.lng(),
-                                details: { name: fistPlace.name, address: fistPlace.formatted_address },
+                                lat: lat,
+                                lng: lng,
+                                details: { name: name, address: address },
                                 title: fistPlace.name,
-                                click: addRequest
+                                click: clickMarker
                             });
                         }
                     }
@@ -49,22 +58,22 @@ var jsmapcontroler = new function () {
             }
 
             gmap.removeMarkers();
+            var fistPlace = places[0];
+            var latlng = fistPlace.geometry.location;
+            var lat = latlng.lat();
+            var lng = latlng.lng();
+            var name = fistPlace.name || '';
+            var address = fistPlace.formatted_address;
+
+            jscontroler.showAddRequestForm(lat, lng, name, address);
+
             var bounds = new google.maps.LatLngBounds();
             places.forEach(function(place) {
-                var icon = {
-                    url: place.icon,
-                    size: new google.maps.Size(71, 71),
-                    origin: new google.maps.Point(0, 0),
-                    anchor: new google.maps.Point(17, 34),
-                    scaledSize: new google.maps.Size(25, 25)
-                };
-
-                gmap.addMarker({
-                    icon: icon,
+                var marker = gmap.addMarker({
                     position: place.geometry.location,
                     details: { name: place.name, address: place.formatted_address },
                     title: place.name,
-                    click: addRequest
+                    click: clickMarker
                 });
                  
                 if (place.geometry.viewport) {
@@ -77,23 +86,22 @@ var jsmapcontroler = new function () {
             gmap.map.fitBounds(bounds);
         });
 
-        var width = $(window).width();
         var height = $(window).height();
-        resizeMap(width, height);
+        resizeMap(height);
 
         $(window).resize(function () {
-            var width = $(window).width();
             var height = $(window).height();
-            resizeMap(width, height);
+            resizeMap(height);
         });
     };
 
-    function addRequest(markerInfo) {
-        console.log(markerInfo.details)
+    function clickMarker(markerInfo) {
+        var lat = markerInfo.position.lat();
+        var lng = markerInfo.position.lng();
+        jscontroler.showAddRequestForm(lat, lng, markerInfo.details.name, markerInfo.details.address);
     };
-    
-    function resizeMap(w, h) {
+
+    function resizeMap(h) {
         $("#map").height(h - 100);
-        $("#map").width(w);
     }
 };
