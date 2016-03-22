@@ -41,14 +41,16 @@ var jscontroler = new function () {
             auth2.grantOfflineAccess({ 'redirect_uri': 'postmessage' }).then(signInCallback);
         });
 
-        auxToken = $.cookie("token");
+        //auxToken = $.cookie("token");
 
-        if (typeof (auxToken) != "undefined") {
-            jscontroler.setToken(auxToken);
-            jscontroler.loadHome();
-        } else {
+        //if (typeof (auxToken) != "undefined" && auxToken !== '') {
+            //$.cookie("token", token);
+            //console.log(auxToken);
+            //jscontroler.setToken(auxToken);
+        //    jscontroler.loadHome();
+        //} else {
             $("#login-dp,#userworkarea").load("/loginview");
-        }
+        //}
 
         $('body').on("click", ".localSinginButton", function () {
             var parent = $(this).closest('.form-signin');
@@ -77,8 +79,10 @@ var jscontroler = new function () {
 
         $.ajaxSetup({
             beforeSend: function (xhr) {
-                var target = document.getElementById('workarea');
-                spinner = new Spinner().spin(target);
+                if (spinner != null) {
+                    var target = document.getElementById('workarea');
+                    spinner = new Spinner().spin(target);
+                }
             },
             complete: function () {
                 if (spinner != null) {
@@ -97,7 +101,6 @@ var jscontroler = new function () {
 
     this.setToken = function (accessToken) {
         token = accessToken;
-        $.cookie("token", token);
         $.ajaxSetup({
             beforeSend: function (xhr) {
                 xhr.setRequestHeader('Authorization', self.make_base_auth(token, ''));
@@ -125,26 +128,67 @@ var jscontroler = new function () {
     };
 
     this.loadMyRequests = function () {
-         $("#userworkarea").load("/myrequests");
+        $.ajax({
+            type: "GET",
+            url: "/api/v1/request",
+            success: function (result) {
+                $("#userworkarea").text(JSON.stringify(result));
+            }
+        });
+        ///api/v1/request
+         //$("#userworkarea").load("/myrequests");
     };
 
     this.showAddRequestForm = function (lat, lng, name, address) {
         if (token !== '') {
-            $("#userworkarea").load("/requestform", function() {
-                $("#meal_type").val('');
-                $("#meal_time").val('');
-                $("#meal_address").val(address);
+            $("#userworkarea").load("/requestform", function () {
+                $("#location_name").val(name);
+                $("#location_address").val(address);
                 $("#original_latitude").val(lat);
                 $("#original_longitude").val(lng);
 
                 $("#addrequestbutton").click(function(e) {
-                    e.prevent();
-                    alert('agrega');
+                    e.preventDefault();
+
+                    var lat = 0;
+                    var long = 0;
+
+                    if ($("#original_latitude").val() != '') {
+                        lat = parseFloat($("#original_latitude").val())
+                    }
+                    
+                    if ($("#original_longitude").val() != '') {
+                        long = parseFloat($("#original_longitude").val());
+                    }
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/api/v1/request',
+                        processData: false,
+                        data: JSON.stringify({
+                            "meal_type": $("#meal_type").val(),
+                            "meal_time": $("#meal_time").val(),
+                            "location_name": $("#location_name").val(),
+                            "location_address": $("#location_address").val(),
+                            "original_latitude": lat,
+                            "original_longitude": long
+                        }),
+                        contentType: 'application/json; charset=utf-8',
+                        success: function(result) {
+                            jscontroler.loadMyRequests();
+                        },
+                        error: function(data, textStatus, jqXHR) {
+                            var ex = $.parseJSON(data.responseText);
+                            if (ex && ex.error) {
+                                alert(ex.error.message);
+                            }
+                        }
+                    });
                 });
 
                 $("#canceladdrequest").click(function(e) {
-                    e.prevent();
-                    alert('cancelar');
+                    e.preventDefault();
+                    jscontroler.loadMyRequests();
                 });
             });
         } else {

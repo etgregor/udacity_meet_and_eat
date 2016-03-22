@@ -75,7 +75,10 @@ class Request(Base):
       'user_id': self.user_id,
       'meal_type': self.meal_type,
       'meal_time' : self.meal_time,
+      'location_name': self.location_name,
       'location_address' : self.location_address,
+      'original_latitude' : self.original_latitude,
+      'original_longitude' : self.original_longitude,
       'location_latitude' : self.location_latitude,
       'location_longitude' : self.location_longitude
       }

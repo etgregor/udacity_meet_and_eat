@@ -1,15 +1,19 @@
 <form class="form-horizontal" style="padding-left: 25px;">
     <div class="form-group">
         <label for="meal_type">Tipo de comida</label>
-        <input type="text" class="form-control" name="meal_type" id="meal_type" required="" placeholder="Ejemplo: Tacos" />
+        <input type="text" class="form-control" name="meal_type" id="meal_type" required="" placeholder="Ejemplo: Tacos" value="Tacos" />
     </div>
     <div class="form-group">
-        <label for="meal_time" class="control-label">Hola de comida</label>
-        <input type="text" class="form-control" name="meal_time" id="meal_time" required="" placeholder="Ejemplo: Desayuno" />
+        <label for="meal_time" class="control-label">Hora de comida</label>
+        <input type="text" class="form-control" name="meal_time" id="meal_time" required="" placeholder="Ejemplo: Desayuno" value="Desayuno"/>
     </div>
     <div class="form-group">
-        <label for="meal_time" class="col-sm-2 control-label">Direcci&oacute;n</label>
-        <input type="text" class="form-control" name="meal_address" id="meal_address" required="" placeholder="Direcci&oacute;n" />
+        <label for="location_name" class="control-label">Lugar sugerido</label>
+        <input type="text" class="form-control" name="location_name" id="location_name" required="" placeholder="Ejemplo: El comalito" />
+    </div>
+    <div class="form-group">
+        <label for="location_address" class="col-sm-2 control-label">Direcci&oacute;n</label>
+        <input type="text" class="form-control" name="location_address" id="location_address" required="" placeholder="Direcci&oacute;n" />
         <input type="hidden" name="original_latitude" id="original_latitude"/>
         <input type="hidden" name="original_longitude" id="original_longitude" />
     </div>

@@ -49,7 +49,7 @@ def verify_password(email_or_token, password):
     g.user = user
     return True
 
-# ================================== Vistas ==================================
+# ================================== Vistas  publicas ==================================
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
@@ -59,17 +59,13 @@ def index():
 def loginview():
     return render_template('loginview.html')
 
-
-@app.route('/myrequests')
-def myrequests():
-    return render_template('myrequests.html')
-
+# ================================== Vistas  protegidas ==================================
 
 @app.route('/requestform')
+@auth.login_required
 def getraddequestform():
     return render_template('addrequestform.html')
 
-# ================================== INICIA LA API ==================================
 @app.route('/oauth/<provider>', methods=['POST'])
 def login(provider):
     # STEP 1 - Parse the auth code
@@ -136,6 +132,10 @@ def login(provider):
     else:
         return jsonify(json = {'code': 'InvalidProvider', 'message': 'Proveedor de autenticaicón incorrecto'}), 400
 
+# ================================== INICIA LA API ==================================
+# ***************************** Seguridad *****************************
+
+
 @app.route('/token')
 @auth.login_required
 def get_auth_token():
@@ -151,7 +151,6 @@ def get_my_profile():
 @app.route('/api/v1/me', methods=['PUT'])
 @auth.login_required
 def update_my_profile():
-    print 'llega'
     name = request.json.get('name')
     picture = request.json.get('picture')
 
@@ -164,6 +163,9 @@ def update_my_profile():
     user.picture = picture
     session.commit()
     return jsonify({'email': user.email}), 201
+
+# ***************************** Usuarios  *****************************
+
 
 @app.route('/api/v1/users', methods=['GET'])
 @auth.login_required
@@ -206,23 +208,51 @@ def add_new_user():
 
     return jsonify({'email': user.email}), 201
 
+# ***************************** Solicitudes *****************************
 
-def addRequest(userId, mealType, meaiTime, locationAddress):
+
+@app.route('/api/v1/request')
+@auth.login_required
+def myrequests():
+    userid = g.user.id
+    #users = session.query(Request).filter(User.id == userid)
+    users = session.query(Request).filter_by(user_id = userid)
+    return jsonify(users=[user.serialize for user in users])
+
+
+@app.route('/api/v1/request', methods=['POST'])
+@auth.login_required
+def addnewrequest():
+
+    user_id = g.user.id
+
+    meal_type = request.json.get('meal_type')
+    meal_time = request.json.get('meal_time')
+    location_name = request.json.get('location_name')
+    location_address = request.json.get('location_address')
+
+    original_latitude = request.json.get('original_latitude')
+    original_longitude = request.json.get('original_longitude')
     geocoding = GoogleClient()
-    location = geocoding.getLocationFromAddress(address=locationAddress)
+    location = geocoding.getLocationFromAddress(address=location_address)
     if location is None:
-        raise ValueError('Dirección no encontrada en el mapa: %s' % locationAddress)
+        return jsonify(error={'code': 'AddressNotFound', 'message': 'Direcion no encontrada'}), 400
 
-    request = Request()
-    request.user_id = userId
-    request.meal_type = mealType
-    request.meal_time = meaiTime
-    request.location_address = locationAddress
-    request.location_latitude = location[0]
-    request.location_longitude = location[1]
-    session.add(request)
+    mealrequest = Request()
+    mealrequest.user_id = user_id
+    mealrequest.meal_type = meal_type
+    mealrequest.meal_time = meal_time
+    mealrequest.location_name = location_name;
+    mealrequest.location_address = location_address
+
+    mealrequest.original_latitude = original_latitude
+    mealrequest.original_longitude = original_longitude
+
+    mealrequest.location_latitude = location[0]
+    mealrequest.location_longitude = location[1]
+    session.add(mealrequest)
     session.commit()
-
+    return jsonify({'mealrequest': mealrequest.id}), 201
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
