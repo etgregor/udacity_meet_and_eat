@@ -44,10 +44,9 @@ var jscontroler = new function () {
         //auxToken = $.cookie("token");
 
         //if (typeof (auxToken) != "undefined" && auxToken !== '') {
-            //$.cookie("token", token);
-            //console.log(auxToken);
-            //jscontroler.setToken(auxToken);
-        //    jscontroler.loadHome();
+        //    console.log(auxToken);
+         //   jscontroler.setToken(auxToken);
+        //    jscontroler.loadHome();            
         //} else {
             $("#login-dp,#userworkarea").load("/loginview");
         //}
@@ -79,6 +78,7 @@ var jscontroler = new function () {
 
         $.ajaxSetup({
             beforeSend: function (xhr) {
+                xhr.setRequestHeader('Authorization', self.make_base_auth(token, ''));
                 if (spinner != null) {
                     var target = document.getElementById('workarea');
                     spinner = new Spinner().spin(target);
@@ -101,16 +101,13 @@ var jscontroler = new function () {
 
     this.setToken = function (accessToken) {
         token = accessToken;
-        $.ajaxSetup({
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('Authorization', self.make_base_auth(token, ''));
-            }
-        });
+        $.cookie("token", token);
     };
 
     this.loadHome = function () {
         self.loadMyProfile();
-        self.loadMyRequests();
+
+        self.loadMyRequests();    
     };
 
     this.loadMyProfile = function () {
@@ -118,7 +115,6 @@ var jscontroler = new function () {
             type: "GET",
             url: "/api/v1/me",
             success: function (result) {
-                $("#userworkarea").html("");
                 $("#loginmenu").hide();
                 $("#userinfo,#usermenu").show();
                 $("p", "#userinfo").html(result.name);
@@ -130,15 +126,21 @@ var jscontroler = new function () {
     this.loadMyRequests = function () {
         $("#userworkarea").html('<table id="myrequesttable"></table>')
 
-        $.get('/api/v1/request', function (data) {
-            $('#myrequesttable').dataTable({
-                "data": data.requests,
-                "columns": [
-                    { "data": "meal_time", "title": "Tiempo" },
-                    { "data": "meal_type", "title": "Tipo" },
-                    { "data": "location_address", "title": "Direccion" }
-                ]
-            });
+        $.ajax({
+            type: "GET",
+            url: "/api/v1/request",
+            success: function (data) {
+                $('#myrequesttable').dataTable({
+                    "paging": false,
+                    "searching": false,
+                    "data": data.requests,
+                    "columns": [
+                        { "data": "meal_time", "title": "Tiempo" },
+                        { "data": "meal_type", "title": "Tipo" },
+                        { "data": "location_address", "title": "Direccion" }
+                    ]
+                });
+            }
         });
     };
 
