@@ -124,25 +124,15 @@ var jscontroler = new function () {
     };
 
     this.loadMyRequests = function () {
-        $("#userworkarea").html('<table id="myrequesttable"></table>')
-
         $.ajax({
             type: "GET",
             url: "/api/v1/request",
             success: function (data) {
-                $('#myrequesttable').dataTable({
-                    "paging": false,
-                    "searching": false,
-                    "data": data.requests,
-                    "columns": [
-                        { "data": "meal_time", "title": "Tiempo" },
-                        { "data": "meal_type", "title": "Tipo" },
-                        { "data": "location_address", "title": "Direccion" }
-                    ]
-                });
+                jsmapcontroler.addmyrequests(data.requests);
             }
         });
     };
+    
 
     this.showAddRequestForm = function (lat, lng, name, address) {
         if (token !== '') {

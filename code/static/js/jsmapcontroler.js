@@ -1,7 +1,10 @@
 var jsmapcontroler = new function () {
     var gmap;
     
+    var posibleMarkers;
+
     this.init = function() {
+        posibleMarkers = new Array();
         gmap = new GMaps({
             div: '#map',
             lat: 19.2464696,
@@ -11,8 +14,7 @@ var jsmapcontroler = new function () {
                     latLng: e.latLng,
                     callback: function (results, status) {
                         if (status == 'OK') {
-
-                            gmap.removeMarkers();
+                            gmap.removeMarkers(posibleMarkers);
                             var fistPlace = results[0];
                             var latlng = fistPlace.geometry.location;
                             var lat = latlng.lat();
@@ -22,14 +24,16 @@ var jsmapcontroler = new function () {
 
                             jscontroler.showAddRequestForm(lat, lng, name, address);
 
-                            gmap.removeMarkers();
-                            gmap.addMarker({
+                            gmap.removeMarkers(posibleMarkers);
+                            var clickMarker = gmap.addMarker({
                                 lat: lat,
                                 lng: lng,
                                 details: { name: name, address: address },
                                 title: fistPlace.name,
                                 click: clickMarker
                             });
+
+                            posibleMarkers.push(clickMarker);
                         }
                     }
                 });
@@ -57,7 +61,7 @@ var jsmapcontroler = new function () {
                 return;
             }
 
-            gmap.removeMarkers();
+            gmap.removeMarkers(posibleMarkers);
             var fistPlace = places[0];
             var latlng = fistPlace.geometry.location;
             var lat = latlng.lat();
@@ -81,6 +85,9 @@ var jsmapcontroler = new function () {
                 } else {
                     bounds.extend(place.geometry.location);
                 }
+
+                posibleMarkers.push(marker);
+
             });
 
             gmap.map.fitBounds(bounds);
@@ -93,6 +100,18 @@ var jsmapcontroler = new function () {
             var height = $(window).height();
             resizeMap(height);
         });
+    };
+
+    this.addmyrequests = function(requests){
+
+    };
+
+    this.addmyPropossal = function(proposal){
+
+    };
+
+    this.addmeals = function(meals){
+        
     };
 
     function clickMarker(markerInfo) {

@@ -208,6 +208,13 @@ def add_new_user():
 
     return jsonify({'email': user.email}), 201
 
+
+@app.route('/api/v1/users/<string:email>', methods=['DELETE'])
+@auth.login_required
+def delete_user_by_id(email):
+    session.query(User).filter_by(email=email).delete()
+    return '', 200
+
 # ***************************** Solicitudes *****************************
 
 
@@ -252,6 +259,47 @@ def addnewrequest():
     session.add(mealrequest)
     session.commit()
     return jsonify({'mealrequest': mealrequest.id}), 201
+
+
+@app.route('/api/v1/request', methods=['PUT'])
+@auth.login_required
+def updaterequest():
+    meal_id = request.json.get('id')
+    meal_type = request.json.get('meal_type')
+    meal_time = request.json.get('meal_time')
+    location_name = request.json.get('location_name')
+    location_address = request.json.get('location_address')
+
+    original_latitude = request.json.get('original_latitude')
+    original_longitude = request.json.get('original_longitude')
+    geocoding = GoogleClient()
+    location = geocoding.getLocationFromAddress(address=location_address)
+    if location is None:
+        return jsonify(error={'code': 'AddressNotFound', 'message': 'Direcion no encontrada'}), 400
+
+    mealrequest = session.query(User).filter_by(id=meal_id).first()
+    mealrequest.meal_type = meal_type
+    mealrequest.meal_time = meal_time
+    mealrequest.location_name = location_name;
+    mealrequest.location_address = location_address
+
+    mealrequest.original_latitude = original_latitude
+    mealrequest.original_longitude = original_longitude
+
+    mealrequest.location_latitude = location[0]
+    mealrequest.location_longitude = location[1]
+    session.add(mealrequest)
+    session.commit()
+    return jsonify({'mealrequest': mealrequest.id}), 201
+
+@app.route('/api/v1/request/<int:id>', methods=['DELETE'])
+@auth.login_required
+def deleteequest(id):
+    session.query(Request).filter_by(id=id).delete()
+    session.commit()
+    return '', 200
+
+#User.query.filter_by(id=123).delete()
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
