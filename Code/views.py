@@ -209,9 +209,10 @@ def add_new_user():
     return jsonify({'email': user.email}), 201
 
 
-@app.route('/api/v1/users/<string:email>', methods=['DELETE'])
+@app.route('/api/v1/users', methods=['DELETE'])
 @auth.login_required
-def delete_user_by_id(email):
+def delete_user_by_id():
+    email = request.json.get('email')
     session.query(User).filter_by(email=email).delete()
     return '', 200
 
