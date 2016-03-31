@@ -1,4 +1,5 @@
 # coding=utf-8
+from ratelimit import *
 from dbmodel import Base, User, Request, Proposal
 from googleclient import GoogleClient
 from flask import Flask, jsonify, request, url_for, abort, g, render_template, redirect, url_for, send_from_directory
@@ -50,22 +51,27 @@ def verify_password(email_or_token, password):
     return True
 
 # ================================== Vistas  publicas ==================================
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
 
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/loginview')
 def loginview():
     return render_template('loginview.html')
 
 # ================================== Vistas  protegidas ==================================
 
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/requestform')
 @auth.login_required
 def getraddequestform():
     return render_template('addrequestform.html')
 
+
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/oauth/<provider>', methods=['POST'])
 def login(provider):
     # STEP 1 - Parse the auth code
@@ -135,19 +141,22 @@ def login(provider):
 # ================================== INICIA LA API ==================================
 # ***************************** Seguridad *****************************
 
-
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/token')
 @auth.login_required
 def get_auth_token():
     token = g.user.generate_auth_token()
     return jsonify({'token': token.decode('ascii')})
 
+
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/api/v1/me')
 @auth.login_required
 def get_my_profile():
     return jsonify(g.user.serialize)
 
 
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/api/v1/me', methods=['PUT'])
 @auth.login_required
 def update_my_profile():
@@ -166,7 +175,7 @@ def update_my_profile():
 
 # ***************************** Usuarios  *****************************
 
-
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/api/v1/users', methods=['GET'])
 @auth.login_required
 def get_all_users():
@@ -174,6 +183,7 @@ def get_all_users():
     return jsonify(users=[user.serialize for user in users])
 
 
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/api/v1/users/<string:email>')
 @auth.login_required
 def get_user_by_id(email):
@@ -183,6 +193,7 @@ def get_user_by_id(email):
     return jsonify(user.serialize)
 
 
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/api/v1/users', methods=['POST'])
 #@auth.login_required
 def add_new_user():
@@ -209,6 +220,7 @@ def add_new_user():
     return jsonify({'email': user.email}), 201
 
 
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/api/v1/users', methods=['DELETE'])
 @auth.login_required
 def delete_user_by_id():
@@ -218,7 +230,7 @@ def delete_user_by_id():
 
 # ***************************** Solicitudes *****************************
 
-
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/api/v1/myrequests')
 @auth.login_required
 def myrequests():
@@ -227,6 +239,7 @@ def myrequests():
     return jsonify(requests=[r.serialize for r in requests])
 
 
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/api/v1/request')
 @auth.login_required
 def open_requets():
@@ -235,6 +248,7 @@ def open_requets():
     return jsonify(requests=[r.serialize for r in requests])
 
 
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/api/v1/request/<int:idrequest>')
 @auth.login_required
 def get_request_by_id(idrequest):
@@ -244,6 +258,7 @@ def get_request_by_id(idrequest):
     return jsonify(user.serialize)
 
 
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/api/v1/request', methods=['POST'])
 @auth.login_required
 def addnewrequest():
@@ -271,6 +286,7 @@ def addnewrequest():
     return jsonify({'mealrequest': mealrequest.id}), 201
 
 
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/api/v1/request', methods=['PUT'])
 @auth.login_required
 def updaterequest():
@@ -301,6 +317,8 @@ def updaterequest():
     session.commit()
     return jsonify({'mealrequest': mealrequest.id}), 201
 
+
+@ratelimit(limit=300, per=30 * 1)
 @app.route('/api/v1/request', methods=['DELETE'])
 @auth.login_required
 def deleteequest():
@@ -308,6 +326,8 @@ def deleteequest():
     session.query(Request).filter_by(id=id).delete()
     session.commit()
     return '', 200
+
+# ***************************** Propuestas *****************************
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
