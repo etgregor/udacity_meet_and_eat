@@ -219,12 +219,29 @@ def delete_user_by_id():
 # ***************************** Solicitudes *****************************
 
 
-@app.route('/api/v1/request')
+@app.route('/api/v1/myrequests')
 @auth.login_required
 def myrequests():
     userid = g.user.id
+    requests = session.query(Request).filter_by(user_id = userid).all()
+    return jsonify(requests=[r.serialize for r in requests])
+
+
+@app.route('/api/v1/request')
+@auth.login_required
+def open_requets():
+    userid = g.user.id
     requests = session.query(Request).filter(Request.user_id != userid).all()
     return jsonify(requests=[r.serialize for r in requests])
+
+
+@app.route('/api/v1/request/<int:idrequest>')
+@auth.login_required
+def get_request_by_id(idrequest):
+    user = session.query(Request).filter_by(id=idrequest).first()
+    if not user:
+        return jsonify(error={'code': 'RequestNotFound', 'message': 'request not found'}), 400
+    return jsonify(user.serialize)
 
 
 @app.route('/api/v1/request', methods=['POST'])
@@ -257,35 +274,40 @@ def addnewrequest():
 @app.route('/api/v1/request', methods=['PUT'])
 @auth.login_required
 def updaterequest():
+    user_id = g.user.id
+
     meal_id = request.json.get('id')
     meal_type = request.json.get('meal_type')
     meal_time = request.json.get('meal_time')
     location_address = request.json.get('location_address')
+
+    print "Buscando: %s" % meal_id
+
+    mealrequest = session.query(Request).filter_by(id=meal_id).filter_by(user_id = user_id).first()
+    if mealrequest is None:
+        return jsonify(error={'code': 'RequestNotFound', 'message': 'Request no existe'}), 404
 
     geocoding = GoogleClient()
     location = geocoding.getLocationFromAddress(address=location_address)
     if location is None:
         return jsonify(error={'code': 'AddressNotFound', 'message': 'Direcion no encontrada'}), 400
 
-    mealrequest = session.query(User).filter_by(id=meal_id).first()
     mealrequest.meal_type = meal_type
     mealrequest.meal_time = meal_time
     mealrequest.location_address = location_address
 
     mealrequest.location_latitude = location[0]
     mealrequest.location_longitude = location[1]
-    session.add(mealrequest)
     session.commit()
     return jsonify({'mealrequest': mealrequest.id}), 201
 
-@app.route('/api/v1/request/<int:id>', methods=['DELETE'])
+@app.route('/api/v1/request', methods=['DELETE'])
 @auth.login_required
-def deleteequest(id):
+def deleteequest():
+    id = request.json.get('id')
     session.query(Request).filter_by(id=id).delete()
     session.commit()
     return '', 200
-
-#User.query.filter_by(id=123).delete()
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'

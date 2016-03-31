@@ -223,7 +223,7 @@ admin_pwd = '1234'
 # 	url = address + '/api/v1/request'
 # 	h2 = Http()
 # 	h2.add_credentials("jperez@gmail.com", "1234")
-# 	data = dict(meal_type ="Pizza", meal_time = "Breakfast", location_address = "Colonia del Roma, Mexico, DF")
+# 	data = dict(meal_type ="Pizza", meal_time = "Dinner", location_address = "Colonia del Roma, Mexico, DF")
 # 	data = json.dumps(data)
 # 	resp, content = h2.request(url,'POST', body = data, headers = {"Content-Type": "application/json"})
 # 	if resp['status'] != '201' and resp['status'] != '200':
@@ -235,22 +235,165 @@ admin_pwd = '1234'
 # else:
 # 	print "Test 10 PASS: Request creados"
 
-#TEST 11: Obtener request abiertos menos los del usuario autenticado
+# #TEST 11: Obtener request abiertos
+# try:
+
+# 	url = address + '/api/v1/request'
+# 	h = Http()
+# 	h.add_credentials(admin_user, admin_pwd)
+# 	resp, content = h.request(url,'GET')
+# 	if resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+# except Exception as err:
+# 	print "Test 11 FAIL: No se pudo obtener el listado de requests"
+# 	print err.args
+# 	sys.exit()
+# else:
+# 	print "Test 11 PASS: Listado de requests"
+
+# #TEST 12: Mis requests
+# try:
+
+# 	url = address + '/api/v1/myrequests'
+# 	h = Http()
+# 	h.add_credentials(admin_user, admin_pwd)
+# 	resp, content = h.request(url,'GET')
+# 	if resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+# 	print content
+# except Exception as err:
+# 	print "Test 11 FAIL: No se pudo obtener los requests del usuario autenticado"
+# 	print err.args
+# 	sys.exit()
+# else:
+# 	print "Test 11 PASS: Listado de requests de usuario aurenticado"
+
+# #TEST 13: Obtener request especifico
+# try:
+
+# 	url = address + '/api/v1/myrequests'
+# 	h = Http()
+# 	h.add_credentials(admin_user, admin_pwd)
+# 	resp, content = h.request(url,'GET')
+# 	if resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+	
+# 	allrequests = json.loads(content)
+	
+# 	firstrequid = allrequests['requests'][1]['id']
+
+# 	url = address + '/api/v1/request/%s' % firstrequid
+# 	h = Http()
+# 	h.add_credentials(admin_user, admin_pwd)
+# 	resp, content = h.request(url,'GET')
+# 	if resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+#
+# except Exception as err:
+# 	print "Test 13 FAIL: Obtener request especifico"
+# 	print err.args
+# 	sys.exit()
+# else:
+# 	print "Test 13 PASS: Request especifico"
+
+# #TEST 14: Obtener request especifico
+# try:
+
+# 	url = address + '/api/v1/request'
+# 	h = Http()
+# 	# Agregando request
+# 	h.add_credentials(admin_user, admin_pwd)
+# 	data = dict(meal_type ="Pizza", meal_time = "Breakfast", location_address = "Colonia del Valle, Mexico, DF")
+# 	data = json.dumps(data)
+# 	resp, content = h.request(url,'POST', body = data, headers = {"Content-Type": "application/json"})
+# 	if resp['status'] != '201' and resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+
+# 	url = address + '/api/v1/myrequests'
+# 	h = Http()
+# 	h.add_credentials(admin_user, admin_pwd)
+# 	resp, content = h.request(url,'GET')
+# 	if resp['status'] != '200':
+# 		raise Exception('14.1, Se recibio un codigo de error %s' % resp['status'])
+	
+# 	allrequests = json.loads(content)
+	
+# 	reqcount = len(allrequests['requests'])
+
+# 	if reqcount < 1:
+# 		raise Exception('14.1.1. No hay requests registrados')
+
+# 	firstrequid = allrequests['requests'][reqcount - 1]['id']
+
+# 	url = address + '/api/v1/request/%s' % firstrequid
+# 	h = Http()
+# 	h.add_credentials(admin_user, admin_pwd)
+# 	resp, content = h.request(url,'GET')
+# 	if resp['status'] != '200':
+# 		raise Exception('14.2. Se recibio un codigo de error %s' % resp['status'])
+# 	specificreq = json.loads(content)
+
+# 	url = address + '/api/v1/request'
+# 	h = Http()
+# 	# Agregando request
+# 	h.add_credentials(admin_user, admin_pwd)
+# 	data = dict(id = specificreq["id"], meal_type = "Coffe", meal_time = "Lunch", location_address = "Vertiz Narvarte, Mexico, DF")
+# 	data = json.dumps(data)
+# 	resp, content = h.request(url,'PUT', body = data, headers = {"Content-Type": "application/json"})
+# 	if resp['status'] != '201' and resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+
+# except Exception as err:
+# 	print "Test 14 FAIL: El request no se pudo actualizar"
+# 	print err.args
+# 	sys.exit()
+# else:
+# 	print "Test 14 PASS: Request actualizado"
+
+#TEST 15: Obtener request especifico
 try:
 
 	url = address + '/api/v1/request'
 	h = Http()
+	# Agregando request
+	h.add_credentials(admin_user, admin_pwd)
+	data = dict(meal_type ="Pizza", meal_time = "Breakfast", location_address = "Colonia del Valle, Mexico, DF")
+	data = json.dumps(data)
+	resp, content = h.request(url,'POST', body = data, headers = {"Content-Type": "application/json"})
+	if resp['status'] != '201' and resp['status'] != '200':
+		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+
+	url = address + '/api/v1/myrequests'
+	h = Http()
 	h.add_credentials(admin_user, admin_pwd)
 	resp, content = h.request(url,'GET')
 	if resp['status'] != '200':
-		raise Exception('Se recibio un codigo de error %s' % resp['status'])
-	print content
+		raise Exception('15.1, Se recibio un codigo de error %s' % resp['status'])
+	
+	allrequests = json.loads(content)
+	
+	reqcount = len(allrequests['requests'])
+
+	if reqcount < 1:
+		raise Exception('15.1.1. No hay requests registrados')
+
+	firstrequid = allrequests['requests'][reqcount - 1]['id']
+
+	url = address + '/api/v1/request'
+	h = Http()
+	h.add_credentials(admin_user, admin_pwd)
+	data = dict(id = firstrequid)
+	data = json.dumps(data)
+	resp, content = h.request(url,'DELETE', body = data, headers = {"Content-Type": "application/json"})
+	if resp['status'] != '200':
+		raise Exception('15.2. Se recibio un codigo de error %s' % resp['status'])
 except Exception as err:
-	print "Test 11 FAIL: No se pudo obtener el listado de requests"
+	print "Test 15 FAIL: Error al borrar un request"
 	print err.args
 	sys.exit()
 else:
-	print "Test 11 PASS: Listado de requests"
+	print "Test 15 PASS: Request borrado"
+
 
 
 
