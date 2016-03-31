@@ -223,7 +223,7 @@ def delete_user_by_id():
 @auth.login_required
 def myrequests():
     userid = g.user.id
-    requests = session.query(Request).filter_by(user_id = userid)
+    requests = session.query(Request).filter(Request.user_id != userid).all()
     return jsonify(requests=[r.serialize for r in requests])
 
 
@@ -235,11 +235,7 @@ def addnewrequest():
 
     meal_type = request.json.get('meal_type')
     meal_time = request.json.get('meal_time')
-    location_name = request.json.get('location_name')
     location_address = request.json.get('location_address')
-
-    original_latitude = request.json.get('original_latitude')
-    original_longitude = request.json.get('original_longitude')
     geocoding = GoogleClient()
     location = geocoding.getLocationFromAddress(address=location_address)
     if location is None:
@@ -249,11 +245,7 @@ def addnewrequest():
     mealrequest.user_id = user_id
     mealrequest.meal_type = meal_type
     mealrequest.meal_time = meal_time
-    mealrequest.location_name = location_name;
     mealrequest.location_address = location_address
-
-    mealrequest.original_latitude = original_latitude
-    mealrequest.original_longitude = original_longitude
 
     mealrequest.location_latitude = location[0]
     mealrequest.location_longitude = location[1]
@@ -268,11 +260,8 @@ def updaterequest():
     meal_id = request.json.get('id')
     meal_type = request.json.get('meal_type')
     meal_time = request.json.get('meal_time')
-    location_name = request.json.get('location_name')
     location_address = request.json.get('location_address')
 
-    original_latitude = request.json.get('original_latitude')
-    original_longitude = request.json.get('original_longitude')
     geocoding = GoogleClient()
     location = geocoding.getLocationFromAddress(address=location_address)
     if location is None:
@@ -281,11 +270,7 @@ def updaterequest():
     mealrequest = session.query(User).filter_by(id=meal_id).first()
     mealrequest.meal_type = meal_type
     mealrequest.meal_time = meal_time
-    mealrequest.location_name = location_name;
     mealrequest.location_address = location_address
-
-    mealrequest.original_latitude = original_latitude
-    mealrequest.original_longitude = original_longitude
 
     mealrequest.location_latitude = location[0]
     mealrequest.location_longitude = location[1]

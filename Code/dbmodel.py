@@ -60,10 +60,7 @@ class Request(Base):
   user_id = Column(Integer, ForeignKey('user.id'), index = True, nullable = False)
   meal_type = Column(String, nullable = False)
   meal_time = Column(String, nullable = False)
-  location_name = Column(String)
   location_address = Column(String, nullable = False)
-  original_latitude = Column(Float, nullable = False)
-  original_longitude = Column(Float, nullable = False)
   location_latitude = Column(Float, nullable = False)
   location_longitude = Column(Float, nullable = False)
   proporal = relationship('Proposal')
@@ -75,10 +72,7 @@ class Request(Base):
       'user_id': self.user_id,
       'meal_type': self.meal_type,
       'meal_time' : self.meal_time,
-      'location_name': self.location_name,
       'location_address' : self.location_address,
-      'original_latitude' : self.original_latitude,
-      'original_longitude' : self.original_longitude,
       'location_latitude' : self.location_latitude,
       'location_longitude' : self.location_longitude
       }

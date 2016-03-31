@@ -65,6 +65,25 @@ admin_pwd = '1234'
 # 	if resp['status'] != '201' and resp['status'] != '200':
 # 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
 
+# 	data = dict(email = "jperez@gmail.com", password = "1234", name = "Juan Perez", picture = "https://pbs.twimg.com/profile_images/1198085304/avatar_GMA_400x400.png")
+# 	data = json.dumps(data)
+# 	resp, content = h.request(url,'POST', body = data, headers = {"Content-Type": "application/json"})
+# 	if resp['status'] != '201' and resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+
+# 	data = dict(email = "mflores@gmail.com", password = "1234", name = "Maria Flores", picture = "https://pbs.twimg.com/profile_images/1198085304/avatar_GMA_400x400.png")
+# 	data = json.dumps(data)
+# 	resp, content = h.request(url,'POST', body = data, headers = {"Content-Type": "application/json"})
+# 	if resp['status'] != '201' and resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+
+# 	data = dict(email = "raguilar@gmail.com", password = "1234", name = "Rosalia Aguilar", picture = "https://pbs.twimg.com/profile_images/1198085304/avatar_GMA_400x400.png")
+# 	data = json.dumps(data)
+# 	resp, content = h.request(url,'POST', body = data, headers = {"Content-Type": "application/json"})
+# 	if resp['status'] != '201' and resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+
+
 # except Exception as err:
 # 	print "Test 3 FAIL: No se puede crear un nuevo usuario"
 # 	print err.args
@@ -124,7 +143,7 @@ admin_pwd = '1234'
 # 	print "Test 6 PASS: Listado de usuarios"
 
 
-# #TEST 7: Todos los usuarios
+# #TEST 7: Obtener usuario por correo
 # try:
 
 # 	url = address + '/api/v1/users/' + admin_user
@@ -160,31 +179,78 @@ admin_pwd = '1234'
 # 	print "Test 8 PASS: Perfil de usuario actualizado"
 
 
-#TEST 9: Borrando usuario
+# #TEST 9: Borrando usuario
+# try:
+
+# 	url = address + '/api/v1/users'
+# 	h = Http()
+	
+# 	h.add_credentials(admin_user, admin_pwd)
+# 	data = dict(email = "userd@gmail.com", password = "1234", name = "Gregor admin", picture = "https://pbs.twimg.com/profile_images/1198085304/avatar_GMA_400x400.png")
+# 	data = json.dumps(data)
+# 	resp, content = h.request(url,'POST', body = data, headers = {"Content-Type": "application/json"})
+# 	if resp['status'] != '201' and resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error al crear usuario para luego borrarlo %s' % resp['status'])
+
+# 	url = address + '/api/v1/users'
+# 	h = Http()
+# 	h.add_credentials(admin_user, admin_pwd)
+# 	data = dict(email = "userd@gmail.com")
+# 	data = json.dumps(data)
+# 	resp, content = h.request(url,'DELETE', body = data, headers = {"Content-Type": "application/json"})
+# 	if resp['status'] != '201' and resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+# except Exception as err:
+# 	print "Test 9 FAIL: No se puede eliminar al usuario"
+# 	print err.args
+# 	sys.exit()
+# else:
+# 	print "Test 9 PASS: Usuario eliminado"
+
+# #TEST 10 Agregando requests
+# try:
+
+# 	url = address + '/api/v1/request'
+# 	h = Http()
+# 	# Agregando request
+# 	h.add_credentials(admin_user, admin_pwd)
+# 	data = dict(meal_type ="Pizza", meal_time = "Breakfast", location_address = "Colonia del Valle, Mexico, DF")
+# 	data = json.dumps(data)
+# 	resp, content = h.request(url,'POST', body = data, headers = {"Content-Type": "application/json"})
+# 	if resp['status'] != '201' and resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+
+# 	url = address + '/api/v1/request'
+# 	h2 = Http()
+# 	h2.add_credentials("jperez@gmail.com", "1234")
+# 	data = dict(meal_type ="Pizza", meal_time = "Breakfast", location_address = "Colonia del Roma, Mexico, DF")
+# 	data = json.dumps(data)
+# 	resp, content = h2.request(url,'POST', body = data, headers = {"Content-Type": "application/json"})
+# 	if resp['status'] != '201' and resp['status'] != '200':
+# 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+# except Exception as err:
+# 	print "Test 10 FAIL: No se pudieron crear los request"
+# 	print err.args
+# 	sys.exit()
+# else:
+# 	print "Test 10 PASS: Request creados"
+
+#TEST 11: Obtener request abiertos menos los del usuario autenticado
 try:
 
-	url = address + '/api/v1/users'
-	h = Http()
-	
-	h.add_credentials(admin_user, admin_pwd)
-	data = dict(email = "userd@gmail.com", password = "1234", name = "Gregor admin", picture = "https://pbs.twimg.com/profile_images/1198085304/avatar_GMA_400x400.png")
-	data = json.dumps(data)
-	resp, content = h.request(url,'POST', body = data, headers = {"Content-Type": "application/json"})
-	if resp['status'] != '201' and resp['status'] != '200':
-		raise Exception('Se recibio un codigo de error al crear usuario para luego borrarlo %s' % resp['status'])
-
-	url = address + '/api/v1/users'
+	url = address + '/api/v1/request'
 	h = Http()
 	h.add_credentials(admin_user, admin_pwd)
-	data = dict(email = "userd@gmail.com")
-	data = json.dumps(data)
-	resp, content = h.request(url,'DELETE', body = data, headers = {"Content-Type": "application/json"})
-	if resp['status'] != '201' and resp['status'] != '200':
+	resp, content = h.request(url,'GET')
+	if resp['status'] != '200':
 		raise Exception('Se recibio un codigo de error %s' % resp['status'])
+	print content
 except Exception as err:
-	print "Test 9 FAIL: No se puede eliminar al usuario"
+	print "Test 11 FAIL: No se pudo obtener el listado de requests"
 	print err.args
 	sys.exit()
 else:
-	print "Test 9 PASS: Usuario eliminado"
+	print "Test 11 PASS: Listado de requests"
+
+
 
